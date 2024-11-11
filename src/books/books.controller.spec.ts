@@ -1,20 +1,50 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { BooksController } from './books.controller';
+import * as request from 'supertest'
+import { Test } from '@nestjs/testing';
+import { BooksModule } from './books.module';
 import { BooksService } from './books.service';
+import { INestApplication } from '@nestjs/common';
 
 describe('BooksController', () => {
-  let controller: BooksController;
+  let app: INestApplication
+  let booksService = {
+    _getMaxId: f => f,
+    getAll: () => ['test'],
+    create: f => f,
+    update: f => f,
+    delete: f => f,
+  }
 
-  beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      controllers: [BooksController],
-      providers: [BooksService],
-    }).compile();
+  beforeAll(async () => {
+    const ModuleRef = await Test.createTestingModule({
+        imports: [BooksModule]
+    })
+        .overrideProvider(BooksService)  // переопределяем провайдера на локальный объект
+        .useValue(booksService)
+        .compile()
+    
+    app = ModuleRef.createNestApplication()
+    await app.init()
+  })
 
-    controller = module.get<BooksController>(BooksController);
+  it('/GET books', () =>{
+      return request(app.getHttpServer())
+          .get('/books')
+          .expect(200)
+          .expect(
+            booksService.getAll()
+          );
   });
 
-  it('should be defined', () => {
-    expect(controller).toBeDefined();
-  });
+  // it('/POST book', () =>{
+  //   return request(app.getHttpServer())
+  //       .get('/books')
+  //       .expect(200)
+  //       .expect(
+  //         booksService.getAll()
+  //       );
+  // });
+
+  afterAll( async () => {
+      await app.close()
+  })
 });

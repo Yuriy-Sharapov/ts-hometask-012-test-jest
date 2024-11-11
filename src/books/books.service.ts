@@ -7,7 +7,7 @@ export class BooksService {
 
     private books: Book[] = []
 
-    private getMaxId(): number {        
+    private _getMaxId(): number {        
         if(this.books.length === 0)
             return 0
 
@@ -20,7 +20,7 @@ export class BooksService {
 
     async create(bookDto: BookDto): Promise<Book> {
 
-        const id = this.getMaxId() + 1
+        const id = this._getMaxId() + 1
         const book = new Book(id,
                               bookDto.title,
                               bookDto.description,
