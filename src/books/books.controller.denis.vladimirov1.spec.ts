@@ -31,9 +31,6 @@ describe('BooksController', () => {
     const mockResult = [];
     booksService.getAll.mockImplementation(() => Promise.resolve(mockResult));
 
-    // const books = await booksService.getAll()
-    // console.log(books)
-
     return request(app.getHttpServer())
       .get('/books')
       .expect(200)
@@ -41,24 +38,22 @@ describe('BooksController', () => {
   });
 
   it('/POST book', async () => {
-    const mockBookDto = {
-      "title"      : "Test Book",
-      "description": "Test Description",
-      "author"     : "Test Author"
-    };
-    console.log("===mockBookDto===")
-    console.log(mockBookDto)
+    const mockBookDto = { title: 'Test Book', description: 'Test Description', author: 'Test Author' }
+    // console.log("===mockBookDto===")
+    // console.log(mockBookDto)
 
     const mockResult = new Book(1, "Test Book", "Test Description", "Test Author");
-    booksService.create.mockImplementation(() => Promise.resolve(mockBookDto));
-    //booksService.create.mockImplementation(() => Promise.resolve(mockResult));
+    //booksService.create.mockImplementation(() => Promise.resolve(mockBookDto));
+    booksService.create.mockImplementation(() => Promise.resolve(mockResult));
 
     return request(app.getHttpServer())
       .post('/books')
       .send(mockBookDto)
       .expect(201)
-      .expect(mockBookDto);
-      // .expect(mockResult);
+      //.expect(mockBookDto);
+      .expect(res => {
+        expect(res.body).toEqual(mockResult);
+      });
   });
 
   afterAll(async () => {
